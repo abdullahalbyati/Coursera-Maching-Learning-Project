@@ -3,13 +3,14 @@ title: "Coursera Machine Learning Project"
 author: "Abdullah Albyati"
 date: "August 31, 2017"
 output: html_document
+  
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r Libraries}
+```{r Libraries, echo=FALSE}
 library(caret)
 library(dplyr)
 library(randomForest)
@@ -82,7 +83,7 @@ dim(validation)
 
 ##Modeling the Data
 
-Using Decision Tree model
+##Using Decision Tree model
 
 ```{r decision-tree, echo=TRUE}
 tree <- rpart(classe ~ ., data = training, method = "class")
@@ -99,4 +100,52 @@ OutOfSample <- 1 - as.numeric(confusionMatrix(validation$classe, predictTree)$ov
 
 ```
 
+##Using Random Forest
+
+```{r random-forest, echo=TRUE}
+forestmodel <- randomForest(classe ~ ., data = training, method = "class")
+```
+
+Check the accuracy with the validation data set
+
+```{r validation-RF, echo=TRUE}
+predictRF <- predict(forestmodel, validation)
+confusionMatrix(validation$classe, predictRF)
+accuracy <- postResample(predictRF, validation$classe)
+ose <- 1 - as.numeric(confusionMatrix(validation$classe, predictRF)$overall[1])
+
+```
+
+```{r create-values, echo=FALSE}
+Decision_Tree_Confusion_Matrix <- confusionMatrix(validation$classe, predictTree)
+Random_Forest_Confusion_Matrix <- confusionMatrix(validation$classe, predictRF)
+```
+
+Below is a comparison of both Decision Tree and Random Forest confusion Matrix 
+
+<style>
+  .col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 200px; /* chrome, safari */
+    -moz-columns: 2 200px;    /* firefox */
+  }
+  .col3 {
+    columns: 3 100px;
+    -webkit-columns: 3 100px;
+    -moz-columns: 3 100px;
+  }
+</style>
+
+<div class="col2">
+```{r comparison, echo=TRUE}
+Decision_Tree_Confusion_Matrix
+Random_Forest_Confusion_Matrix
+```
+</div>
+
+Let's use the more accurate random forest model to predict the provided testing set
+
+```{r testing, echo=TRUE}
+predict(forestmodel, testing)
+```
 
