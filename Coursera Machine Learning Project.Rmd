@@ -6,11 +6,8 @@ output: html_document
   
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
-```{r Libraries, echo=FALSE}
+```{r Libraries, echo=TRUE}
 library(caret)
 library(dplyr)
 library(randomForest)
@@ -116,32 +113,6 @@ ose <- 1 - as.numeric(confusionMatrix(validation$classe, predictRF)$overall[1])
 
 ```
 
-```{r create-values, echo=FALSE}
-Decision_Tree_Confusion_Matrix <- confusionMatrix(validation$classe, predictTree)
-Random_Forest_Confusion_Matrix <- confusionMatrix(validation$classe, predictRF)
-```
-
-Below is a comparison of both Decision Tree and Random Forest confusion Matrix 
-
-<style>
-  .col2 {
-    columns: 2 200px;         /* number of columns and width in pixels*/
-    -webkit-columns: 2 200px; /* chrome, safari */
-    -moz-columns: 2 200px;    /* firefox */
-  }
-  .col3 {
-    columns: 3 100px;
-    -webkit-columns: 3 100px;
-    -moz-columns: 3 100px;
-  }
-</style>
-
-<div class="col2">
-```{r comparison, echo=TRUE}
-Decision_Tree_Confusion_Matrix
-Random_Forest_Confusion_Matrix
-```
-</div>
 
 Let's use the more accurate random forest model to predict the provided testing set
 
