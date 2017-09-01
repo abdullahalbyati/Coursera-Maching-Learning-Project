@@ -9,11 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r Libraries}
 library(caret)
 library(dplyr)
 library(randomForest)
 library(rpart)
+library(rpart.plot)
 ```
 
 ##Reading Data
@@ -86,6 +87,16 @@ Using Decision Tree model
 ```{r decision-tree, echo=TRUE}
 tree <- rpart(classe ~ ., data = training, method = "class")
 prp(tree)
+```
+
+Let's check the model against our validation data set to check for performance to include confusion matrix and accuracy
+
+```{r validate-tree, echo=TRUE}
+predictTree <- predict(tree, validation, type = "class")
+confusionMatrix(validation$classe, predictTree)
+accuracy <- postResample(predictTree, validation$classe)
+OutOfSample <- 1 - as.numeric(confusionMatrix(validation$classe, predictTree)$overall[1])
+
 ```
 
 
