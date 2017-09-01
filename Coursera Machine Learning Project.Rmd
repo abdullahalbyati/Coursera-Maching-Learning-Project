@@ -1,0 +1,91 @@
+---
+title: "Coursera Machine Learning Project"
+author: "Abdullah Albyati"
+date: "August 31, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(caret)
+library(dplyr)
+library(randomForest)
+library(rpart)
+```
+
+##Reading Data
+
+```{r data, echo=TRUE}
+set.seed(1234)
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", destfile = "training.csv")
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", destfile = "testing.csv")
+#data for partitioning
+training <- read.csv("training.csv", na.strings=c("NA","","#DIV/0!"))
+#testing data to validate 
+validate <- read.csv("testing.csv")
+```
+
+##Cleaning and Preparing the Data
+First we start with identifying near zero variance variables(NZV) and creating clean data sets without the NZV.
+Then we remove the unclean sets.
+```{r Cleaning-NVZ, echo=TRUE}
+NZV <- nearZeroVar(training, saveMetrics = TRUE) 
+trainingclean <- training[, !NZV$nzv]
+validateclean <- validate[, !NZV$nzv]
+rm(training)
+rm(validate)
+rm(NZV)
+```
+
+Our data sets has some columns that are unnecessary to our analysis we will remove these columns all together
+```{r Cleaning-columns, echo=TRUE }
+usless <- grepl("^X|timestamp|user_name", names(trainingclean))
+training <- trainingclean[, !usless]
+testing <- validateclean[, !usless]
+rm(usless)
+rm(trainingclean)
+rm(validateclean)
+dim(training)
+dim(testing)
+```
+
+Last step in the cleaning process is removing all the columns that are made entirely of NA's
+
+```{r Cleaning-NAColumns, echo=TRUE}
+notneeded <- (colSums(is.na(training)) == 0)
+training <- training[, notneeded]
+testing <- testing[, notneeded]
+rm(notneeded)
+```
+
+##Partitioning Training Set
+In this section I will split the training data to 70% for training and 30% for validation  
+
+```{r Spliting, echo=TRUE}
+inTrain <- createDataPartition(training$classe, p = 0.70, list = FALSE)
+validation <- training[-inTrain, ]
+training <- training[inTrain, ]
+rm(inTrain)
+```
+
+Now we have three clean data sets in the project environment with the following dimensions
+
+```{r dimensions, echo=TRUE}
+dim(testing)
+dim(training)
+dim(validation)
+```
+
+##Modeling the Data
+
+Using Decision Tree model
+
+```{r decision-tree, echo=TRUE}
+tree <- rpart(classe ~ ., data = training, method = "class")
+prp(tree)
+```
+
+
